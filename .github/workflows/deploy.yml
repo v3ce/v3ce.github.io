@@ -1,0 +1,35 @@
+name: Site Deployment
+
+on:
+  push:
+    branches: [docs]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Branch
+        uses: actions/checkout@v2
+        with:
+          ref: docs
+
+      - name: Setup Environment
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Generate Site
+        run: yarn install && yarn run build
+
+      - name: Run Gulp
+        run: gulp
+
+      - name: Deployment
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
+          force_orphan: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
