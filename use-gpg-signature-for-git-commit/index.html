@@ -1,0 +1,176 @@
+<!DOCTYPE html><html lang="zh-TW" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>在 GitHub/GitLab 上使用 GPG 簽署提交紀錄 | Vagrants of 3 CEs</title><meta name="keywords" content="GitHub, GPG"><meta name="author" content="v3ce"><meta name="copyright" content="v3ce"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="在版本控制軟體 Git 的提交紀錄中，每一條提交紀錄會存放提交紀錄的作者（commit author）和執行提交操作的用戶（committer）的名稱、電子郵件和時間戳記。由於這些資訊是以字串形式儲存在提交紀錄中，有可能會被仿冒或修改，為了防範這種行為，我們可以使用 GPG 簽名（GPG Signature）簽署提交紀錄，並讓 GitHub 和 GitLab 等程式碼託管平台確認是本人的操作。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在 GitHub&#x2F;GitLab 上使用 GPG 簽署提交紀錄">
+<meta property="og:url" content="http://v3ce.github.io/use-gpg-signature-for-git-commit/index.html">
+<meta property="og:site_name" content="Vagrants of 3 CEs">
+<meta property="og:description" content="在版本控制軟體 Git 的提交紀錄中，每一條提交紀錄會存放提交紀錄的作者（commit author）和執行提交操作的用戶（committer）的名稱、電子郵件和時間戳記。由於這些資訊是以字串形式儲存在提交紀錄中，有可能會被仿冒或修改，為了防範這種行為，我們可以使用 GPG 簽名（GPG Signature）簽署提交紀錄，並讓 GitHub 和 GitLab 等程式碼託管平台確認是本人的操作。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://i.imgur.com/pwMmzHb.png">
+<meta property="article:published_time" content="2021-02-24T18:55:00.000Z">
+<meta property="article:modified_time" content="2021-02-26T05:24:34.669Z">
+<meta property="article:author" content="v3ce">
+<meta property="article:tag" content="Git">
+<meta property="article:tag" content="GitHub">
+<meta property="article:tag" content="GitLab">
+<meta property="article:tag" content="GPG">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/pwMmzHb.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://v3ce.github.io/use-gpg-signature-for-git-commit/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="manifest" href="/pwa/manifest.json"/><link rel="apple-touch-icon" sizes="180x180" href="/pwa/apple-touch-icon.png"/><link rel="icon" type="image/png" sizes="32x32" href="/pwa/32.png"/><link rel="icon" type="image/png" sizes="16x16" href="/pwa/16.png"/><link rel="mask-icon" href="/pwa/safari-pinned-tab.svg" color="#5bbad5"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '複製成功',
+    error: '複製錯誤',
+    noSupport: '瀏覽器不支援'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '剛剛',
+    min: '分鐘前',
+    hour: '小時前',
+    day: '天前',
+    month: '個月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-02-26 13:24:34'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    })(window)</script><style type="text/css">.app-refresh{position:fixed;top:-2.2rem;left:0;right:0;z-index:99999;padding:0 1rem;font-size:15px;height:2.2rem;transition:all .3s ease}.app-refresh-wrap{display:flex;color:#fff;height:100%;align-items:center;justify-content:center}.app-refresh-wrap a{color:#fff;text-decoration:underline;cursor:pointer}</style><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/images/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">2</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">標籤</div><div class="length-num">6</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分類</div><div class="length-num">1</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主頁</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 標籤</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分類</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.imgur.com/pwMmzHb.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Vagrants of 3 CEs</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主頁</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 標籤</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分類</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">在 GitHub/GitLab 上使用 GPG 簽署提交紀錄</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">發表於</span><time class="post-meta-date-created" datetime="2021-02-24T18:55:00.000Z" title="發表於 2021-02-25 02:55:00">2021-02-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新於</span><time class="post-meta-date-updated" datetime="2021-02-26T05:24:34.669Z" title="更新於 2021-02-26 13:24:34">2021-02-26</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">閱讀量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>在版本控制軟體 Git 的提交紀錄中，每一條提交紀錄會存放提交紀錄的作者（commit author）和執行提交操作的用戶（committer）的名稱、電子郵件和時間戳記。由於這些資訊是以字串形式儲存在提交紀錄中，有可能會被仿冒或修改，為了防範這種行為，我們可以使用 GPG 簽名（GPG Signature）簽署提交紀錄，並讓 GitHub 和 GitLab 等程式碼託管平台確認是本人的操作。</p>
+<span id="more"></span>
+
+<h2 id="資訊加密"><a href="#資訊加密" class="headerlink" title="資訊加密"></a>資訊加密</h2><h3 id="PGP-與-GPG"><a href="#PGP-與-GPG" class="headerlink" title="PGP 與 GPG"></a>PGP 與 GPG</h3><h2 id="簽名驗證"><a href="#簽名驗證" class="headerlink" title="簽名驗證"></a>簽名驗證</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="金鑰管理"><a href="#金鑰管理" class="headerlink" title="金鑰管理"></a>金鑰管理</h2><h3 id="安裝-GnuPG"><a href="#安裝-GnuPG" class="headerlink" title="安裝 GnuPG"></a>安裝 GnuPG</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Debian / Ubuntu</span></span><br><span class="line">$ sudo apt install gpg</span><br><span class="line"></span><br><span class="line"><span class="comment"># macOS</span></span><br><span class="line">$ brew install gpg</span><br><span class="line"></span><br><span class="line"><span class="comment"># Arch Linux / Manjaro</span></span><br><span class="line">$ sudo pacman -S install gpg</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Microsoft Windows</span></span><br><span class="line">&gt; scoop install gpg</span><br></pre></td></tr></table></figure>
+
+<h3 id="生成金鑰"><a href="#生成金鑰" class="headerlink" title="生成金鑰"></a>生成金鑰</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gpg --full-generate-key</span><br></pre></td></tr></table></figure>
+
+<h3 id="金鑰匯出"><a href="#金鑰匯出" class="headerlink" title="金鑰匯出"></a>金鑰匯出</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># export the GPG public key</span></span><br><span class="line">$ gpg --output hsins_pub.gpg --<span class="built_in">export</span> --armor 9E9DD37D0AE1558E</span><br><span class="line"></span><br><span class="line"><span class="comment"># export the GPG private key</span></span><br><span class="line">$ gpg --output hsins_sec.gpg --export-secret-key --armor 9E9DD37D0AE1558E</span><br></pre></td></tr></table></figure>
+
+<h3 id="金鑰匯入"><a href="#金鑰匯入" class="headerlink" title="金鑰匯入"></a>金鑰匯入</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># import the GPG public key</span></span><br><span class="line">$ gpg --import hsins_pub.gpg</span><br><span class="line"></span><br><span class="line"><span class="comment"># import the GPG private key</span></span><br><span class="line">$ gpg --allow-secret-key-import --import hsins_sec-sec.gpg</span><br></pre></td></tr></table></figure>
+
+<h3 id="託管金鑰"><a href="#託管金鑰" class="headerlink" title="託管金鑰"></a>託管金鑰</h3><h2 id="終端設定"><a href="#終端設定" class="headerlink" title="終端設定"></a>終端設定</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># setup the signature key for local git</span></span><br><span class="line">$ git config --global user.signingkey 9E9DD37D0AE1558E</span><br><span class="line"></span><br><span class="line"><span class="comment"># activate signing commit with GPG signature by default</span></span><br><span class="line">$ git config --global commit.gpgsign <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="疑難排解"><a href="#疑難排解" class="headerlink" title="疑難排解"></a>疑難排解</h2><h3 id="匯入金鑰的信任層級為未知-unknown"><a href="#匯入金鑰的信任層級為未知-unknown" class="headerlink" title="匯入金鑰的信任層級為未知 [unknown]"></a>匯入金鑰的信任層級為未知 <code>[unknown]</code></h3><p>GnuPG 會將金鑰存放於位在 <code>~/.gnupg/trustdb.gpg</code> 的信任資料庫（trust database），如果匯出金鑰並在新的環境匯入，並不會保留信任資料庫中的資訊，因此在匯入金鑰後執行 <code>gpg --list-keys</code> 命令檢查金鑰清單時，會發現匯入金鑰的信任層級會是 <code>[unknown]</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ gpg --list-secret-keys --keyid-format LONG</span><br><span class="line">/Users/hsins/.gnupg/pubring.kbx</span><br><span class="line">-------------------------------</span><br><span class="line">sec   rsa4096/9E9DD37D0AE1558E 2021-02-04 [SC]</span><br><span class="line">      AECB1DCCA747D99E57DE19E29E9DD37D0AE1558E</span><br><span class="line">uid                 [ unknown] Hsins &lt;hsinspeng@gmail.com&gt;</span><br><span class="line">ssb   rsa4096/C44D8177ADB88C41 2021-02-04 [E]</span><br></pre></td></tr></table></figure>
+
+<p>我們可以透過以下方式交互式地將金鑰設定改為 <code>[ultimate]</code> 信任層級：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">$ gpg --edit-key hsinspeng@gmail.com</span><br><span class="line">gpg&gt; trust</span><br><span class="line"></span><br><span class="line">Please decide how far you trust this user to correctly verify other users&#39; keys</span><br><span class="line">(by looking at passports, checking fingerprints from different sources, etc.)</span><br><span class="line"></span><br><span class="line">  1 &#x3D; I don&#39;t know or won&#39;t say</span><br><span class="line">  2 &#x3D; I do NOT trust</span><br><span class="line">  3 &#x3D; I trust marginally</span><br><span class="line">  4 &#x3D; I trust fully</span><br><span class="line">  5 &#x3D; I trust ultimately</span><br><span class="line">  m &#x3D; back to the main menu</span><br><span class="line"></span><br><span class="line">Your decision? 5</span><br><span class="line">Do you really want to set this key to ultimate trust? (y&#x2F;N) y</span><br><span class="line"></span><br><span class="line">sec  rsa4096&#x2F;9E9DD37D0AE1558E</span><br><span class="line">     created: 2021-02-04  expires: never       usage: SC</span><br><span class="line">     trust: ultimate      validity: unknown</span><br><span class="line">ssb  rsa4096&#x2F;C44D8177ADB88C41</span><br><span class="line">     created: 2021-02-04  expires: never       usage: E</span><br><span class="line">[ unknown] (1). Hsins &lt;hsinspeng@gmail.com&gt;</span><br><span class="line">Please note that the shown key validity is not necessarily correct</span><br><span class="line">unless you restart the program.</span><br></pre></td></tr></table></figure>
+
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.github.com/en/github/authenticating-to-github/managing-commit-signature-verification">Managing commit signature verification</a></li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/39494631/gpg-failed-to-sign-the-data-fatal-failed-to-write-commit-object-git-2-10-0">GPG Failed to Sign the Data. <code>fatal: failed to write commit object</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://unix.stackexchange.com/questions/407062/gpg-list-keys-command-outputs-uid-unknown-after-importing-private-key-onto"><code>gpg —list-keys</code> Command Outputs uid <code>[ unknown ]</code> After Importing Private Key onto a Clean Install</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.spencerwoo.com/2020/08/wait-this-is-not-my-commit">震惊！竟然有人在 GitHub 上冒充我的身份！</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.ichr.me/post/use-gpg-verification-in-github/">在 GitHub 上使用 GPG 認證你的 Git Commit</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.miniasp.com/post/2020/05/04/How-to-use-GPG-sign-git-commit-and-tag-object">如何使用 GPG (GnuPG) 對 Git Commit 與 Tag 進行簽章</a></li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">v3ce</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章連結: </span><span class="post-copyright-info"><a href="http://v3ce.github.io/use-gpg-signature-for-git-commit/">http://v3ce.github.io/use-gpg-signature-for-git-commit/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版權聲明: </span><span class="post-copyright-info">本部落格所有文章除特別聲明外，均採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 許可協議。轉載請註明來自 <a href="http://v3ce.github.io" target="_blank">Vagrants of 3 CEs</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Git/">Git</a><a class="post-meta__tags" href="/tags/GitHub/">GitHub</a><a class="post-meta__tags" href="/tags/GitLab/">GitLab</a><a class="post-meta__tags" href="/tags/GPG/">GPG</a></div><div class="post_share"><div class="social-share" data-image="https://i.imgur.com/pwMmzHb.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/markdown/"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN/img/Markdown-Style-test-cover.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Markdown Style test</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="/images/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">v3ce</div><div class="author-info__description">👨‍💻 Three Software Engineers graduated from National Taiwan University of CE (Civil Engineering, Computer Engineering and Chemical Engineering) departments.</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">2</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">標籤</div><div class="length-num">6</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分類</div><div class="length-num">1</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/v3ce"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/v3ce" target="_blank" title="Github"><i class="fab fa-github"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目錄</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B3%87%E8%A8%8A%E5%8A%A0%E5%AF%86"><span class="toc-number">1.</span> <span class="toc-text">資訊加密</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PGP-%E8%88%87-GPG"><span class="toc-number">1.1.</span> <span class="toc-text">PGP 與 GPG</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B0%BD%E5%90%8D%E9%A9%97%E8%AD%89"><span class="toc-number">2.</span> <span class="toc-text">簽名驗證</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%87%91%E9%91%B0%E7%AE%A1%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">金鑰管理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%9D-GnuPG"><span class="toc-number">3.1.</span> <span class="toc-text">安裝 GnuPG</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E9%87%91%E9%91%B0"><span class="toc-number">3.2.</span> <span class="toc-text">生成金鑰</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%91%E9%91%B0%E5%8C%AF%E5%87%BA"><span class="toc-number">3.3.</span> <span class="toc-text">金鑰匯出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%91%E9%91%B0%E5%8C%AF%E5%85%A5"><span class="toc-number">3.4.</span> <span class="toc-text">金鑰匯入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A8%97%E7%AE%A1%E9%87%91%E9%91%B0"><span class="toc-number">3.5.</span> <span class="toc-text">託管金鑰</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B5%82%E7%AB%AF%E8%A8%AD%E5%AE%9A"><span class="toc-number">4.</span> <span class="toc-text">終端設定</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%96%91%E9%9B%A3%E6%8E%92%E8%A7%A3"><span class="toc-number">5.</span> <span class="toc-text">疑難排解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8C%AF%E5%85%A5%E9%87%91%E9%91%B0%E7%9A%84%E4%BF%A1%E4%BB%BB%E5%B1%A4%E7%B4%9A%E7%82%BA%E6%9C%AA%E7%9F%A5-unknown"><span class="toc-number">5.1.</span> <span class="toc-text">匯入金鑰的信任層級為未知 [unknown]</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="toc-number">6.</span> <span class="toc-text">參考資料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/use-gpg-signature-for-git-commit/" title="在 GitHub/GitLab 上使用 GPG 簽署提交紀錄"><img src="https://i.imgur.com/pwMmzHb.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="在 GitHub/GitLab 上使用 GPG 簽署提交紀錄"/></a><div class="content"><a class="title" href="/use-gpg-signature-for-git-commit/" title="在 GitHub/GitLab 上使用 GPG 簽署提交紀錄">在 GitHub/GitLab 上使用 GPG 簽署提交紀錄</a><time datetime="2021-02-24T18:55:00.000Z" title="發表於 2021-02-25 02:55:00">2021-02-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/markdown/" title="Markdown Style test"><img src="https://cdn.jsdelivr.net/gh/jerryc127/CDN/img/Markdown-Style-test-cover.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Markdown Style test"/></a><div class="content"><a class="title" href="/markdown/" title="Markdown Style test">Markdown Style test</a><time datetime="2018-07-24T15:31:06.000Z" title="發表於 2018-07-24 23:31:06">2018-07-24</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By v3ce</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主題 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="閱讀模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="淺色和深色模式轉換"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="單欄和雙欄切換"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="設定"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目錄"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到頂部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><div class="app-refresh" id="app-refresh"> <div class="app-refresh-wrap"> <label>✨ 網站已更新最新版本 👉</label> <a href="javascript:void(0)" onclick="location.reload()">點擊刷新</a> </div></div><script>function showNotification(){if(GLOBAL_CONFIG.Snackbar){var t="light"===document.documentElement.getAttribute("data-theme")?GLOBAL_CONFIG.Snackbar.bgLight:GLOBAL_CONFIG.Snackbar.bgDark,e=GLOBAL_CONFIG.Snackbar.position;Snackbar.show({text:"已更新最新版本",backgroundColor:t,duration:5e5,pos:e,actionText:"點擊刷新",actionTextColor:"#fff",onActionClick:function(t){location.reload()}})}else{var o=`top: 0; background: ${"light"===document.documentElement.getAttribute("data-theme")?"#49b1f5":"#1f1f1f"};`;document.getElementById("app-refresh").style.cssText=o}}"serviceWorker"in navigator&&(navigator.serviceWorker.controller&&navigator.serviceWorker.addEventListener("controllerchange",function(){showNotification()}),window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js")}));</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
